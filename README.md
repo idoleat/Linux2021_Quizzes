@@ -1,1 +1,2 @@
-# what-is-linked_list
+# Linux2021 Quizzes
+This repository contains write up for quizzes.
