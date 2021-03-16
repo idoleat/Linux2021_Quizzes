@@ -71,7 +71,8 @@ struct ACORN *NewACORN()
 /* Use this function to set the value of pricision, order and auto_correct_seed.
  * Otherwies the default value will be used.
  */
-void SetProperty(struct ACORN *acorn, int pricision, int order, int auto_correct){
+void SetProperty(struct ACORN *acorn, int pricision, int order, int auto_correct)
+{
     acorn->precision_multiplier = pricision;
     acorn->K = order;
     acorn->auto_correct_seed = auto_correct;
