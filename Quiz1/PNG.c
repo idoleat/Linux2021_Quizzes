@@ -5,8 +5,8 @@
 struct ACORN {
     int precision_multiplier;
     int K; /* order */
-    int N; /*  */
-    long long int M;
+    int N; /* amount of random numbers */
+    long long int M; /* Modulus */
     long long int seed;
     int auto_correct_seed; // it's a bool
     long long int *initial_value;
@@ -14,7 +14,7 @@ struct ACORN {
     long long int *Y2;
 };
 
-long long int power(long long base, int exp)
+long long int __power(long long base, int exp)
 {
     long long result = 1;
     while (exp > 0){
@@ -25,12 +25,12 @@ long long int power(long long base, int exp)
     return result;
 }
 
-void InitializeACORN(struct ACORN *acorn)
+void __initializeACORN(struct ACORN *acorn)
 {
     acorn->precision_multiplier = 2; // due to long long it only can be up to 2
     acorn->K = 10000;
     acorn->N = 1;
-    acorn->M = power(2, 30 * acorn->precision_multiplier);
+    acorn->M = __power(2, 30 * acorn->precision_multiplier);
     acorn->seed = 0;
     acorn->auto_correct_seed = 1;
     acorn->initial_value = NULL;
@@ -56,6 +56,17 @@ int __isSeedValid(struct ACORN *acorn)
     return 1;
 }
 
+/* Get a initilaized ACORN struct. Return NULL on fail.
+ */
+struct ACORN *NewACORN()
+{
+    struct ACORN *acorn = malloc(sizeof(struct ACORN));
+    if(acorn == NULL)
+        return NULL;
+
+    __initializeACORN(acorn);
+    return acorn;
+}
 
 /* Use this function to set the value of pricision, order and auto_correct_seed.
  * Otherwies the default value will be used.
@@ -98,7 +109,6 @@ float *RandomArray(struct ACORN *acorn, long long seed, int length)
     if (length <= 0)
         return NULL;
 
-    InitializeACORN(acorn);
     acorn->seed = seed;
     if (!__isSeedValid(acorn))
         return NULL;
