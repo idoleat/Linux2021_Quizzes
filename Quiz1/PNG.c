@@ -1,4 +1,5 @@
-#include<stdlib.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 /* A struct hold all the information that ACORN need.
  */
@@ -47,8 +48,9 @@ int __isSeedValid(struct ACORN *acorn)
         return 0;
     if (acorn->seed % 2 == 0){
         /* This may cause collision with other seed. Could have a better way. */
-        if (acorn->auto_correct_seed) acorn->seed -= 1; 
-        return 0;
+        if (acorn->auto_correct_seed) acorn->seed -= 1;
+        else
+            return 0;
     }
     if (acorn->seed >= acorn->M)
         return 0;
@@ -104,20 +106,21 @@ void FreeACORN(struct ACORN *acorn)
 }
 
 /* Main API to generate an array of psuedorandom numbers. Will return NULL if seed and length is invalid.
+ * Or unable to allocate memorry for results.
  */
 float *RandomArray(struct ACORN *acorn, long long seed, int length)
 {
     if (length <= 0)
         return NULL;
 
-    acorn->seed = seed;
+    acorn->seed = seed % acorn->M;
     if (!__isSeedValid(acorn))
         return NULL;
 
     acorn->N = length + 1; /* The first one is of seed and initial value */
 
-    acorn->Y1 = malloc(acorn->N * sizeof(long long int));
-    acorn->Y2 = malloc(acorn->N * sizeof(long long int));
+    acorn->Y1 = (long long *)malloc(acorn->N * sizeof(long long int));
+    acorn->Y2 = (long long *)malloc(acorn->N * sizeof(long long int));
     if(acorn->Y1 == NULL || acorn->Y2 == NULL)
         return NULL;
 
@@ -125,11 +128,10 @@ float *RandomArray(struct ACORN *acorn, long long seed, int length)
         acorn->Y1[i] = acorn->seed;
     }
 
-    long long int **Y1_p, **Y2_p;
     for (int i=0; i<acorn->K; i++){
         /* Set initial value */
         acorn->Y2[0] = acorn->initial_value == NULL ? acorn->seed : acorn->initial_value[i];
-        for (int j=1;acorn->N; j++){
+        for (int j=1; j<acorn->N; j++){
             acorn->Y2[j] = (acorn->Y1[j] + acorn->Y2[j-1]) % acorn->M;
             /* Assign Y2 value to Y1 to reuse Y1 */
             acorn->Y1[j] = acorn->Y2[j];
@@ -137,11 +139,15 @@ float *RandomArray(struct ACORN *acorn, long long seed, int length)
     }
 
     /* Normalize the result*/
+    float *result = malloc(sizeof(length * sizeof(float)));
+    if(result == NULL)
+        return NULL;
+
     for (int i=1; i<acorn->N; i++){
-        acorn->Y2[i] /= acorn->M;
+        result[i-1] = (float)acorn->Y2[i] / (float)acorn->M;
     }
 
-    return acorn->Y2 + 1;
+    return result;
 
     // don't forget to free
 }
