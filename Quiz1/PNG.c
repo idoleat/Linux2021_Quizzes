@@ -44,16 +44,22 @@ void __initializeACORN(struct ACORN *acorn)
  */
 int __isSeedValid(struct ACORN *acorn)
 {
-    if (acorn->seed <= 0)
+    if (acorn->seed <= 0){
+        printf("[Error] Seed must greater than 0!");
         return 0;
+    }
     if (acorn->seed % 2 == 0){
         /* This may cause collision with other seed. Could have a better way. */
         if (acorn->auto_correct_seed) acorn->seed -= 1;
-        else
+        else {
+            printf("[Error] Seed must be odd. Turn on auto_correct_seed or fix it manually.");
             return 0;
+        }
     }
-    if (acorn->seed >= acorn->M)
+    if (acorn->seed >= acorn->M){
+        printf("Seed must be smaller than M.");
         return 0;
+    }
 
     return 1;
 }
@@ -82,13 +88,13 @@ void SetProperty(struct ACORN *acorn, int pricision, int order, int auto_correct
 
 
 /* Use this function to explicitly specify the initial value for ACORN.  
- * K will be adjust according to the lengthinitVal. Otherwise seed will
- * be used as default initial values and default K will be used.
+ * Length of iniVal should be specified as well and K will be adjusted according to it.
+ * Otherwise seed will be used as default initial values and default K will be used.
  */
-void SetInitialValue(struct ACORN *acorn, long long int *initVal)
+void SetInitialValue(struct ACORN *acorn, long long int *initVal, int size)
 {
     acorn->initial_value = initVal;
-    acorn->K = sizeof(initVal)/sizeof(initVal[0]); // or sizeof(initVal)/sizeof(long long int) ?
+    acorn->K = size;
 }
 
 /* Free acron itself and the content it holds.
