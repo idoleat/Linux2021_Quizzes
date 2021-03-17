@@ -153,9 +153,12 @@ float *RandomArray(struct ACORN *acorn, long long seed, int length)
         result[i-1] = (float)acorn->Y2[i] / (float)acorn->M;
     }
 
-    return result;
+    free(acorn->Y1);
+    acorn->Y1 = NULL;
+    free(acorn->Y2);
+    acorn->Y2 = NULL;
 
-    // don't forget to free
+    return result;
 }
 
 /* Main API to generate psuedorandom number. Will return -1.0 if seed is invalid.
@@ -166,6 +169,9 @@ float Random(struct ACORN *acorn, long long seed)
     if(result == NULL)
         return -1.0;
 
-    return *result;
+    float number = *result;
+    free(result);
+
+    return number;
 }
 
