@@ -61,6 +61,9 @@ int __isSeedValid(struct ACORN *acorn)
         return 0;
     }
 
+    if (acorn->seed < __power(10, 10))
+        printf("Recommand using seed greater than 10^10 for better result.");
+
     return 1;
 }
 
